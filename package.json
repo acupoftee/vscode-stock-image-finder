@@ -14,8 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "stock-image-finder.helloWorld",
-        "title": "Hello World"
+        "command": "stock-image-finder.findUnsplashImage",
+        "title": "Search Unsplash Images"
       }
     ]
   },
