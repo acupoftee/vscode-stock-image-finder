@@ -9,6 +9,8 @@
 import * as vscode from "vscode";
 
 export function activate(context: vscode.ExtensionContext) {
+  // Track current panel with a webview
+  let currentPanel: vscode.WebviewPanel | undefined = undefined;
   console.log('"stock-image-fimder" is now active!');
 
   // Technical Guidelines
@@ -32,21 +34,49 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showWarningMessage(`Please include valid search query`);
         return;
       }
-      // Creates a new webview panel beside the active panel
-      const panel = vscode.window.createWebviewPanel(
-        "stock-image-finder",
-        `Unsplash Images for ${query}`,
-        vscode.ViewColumn.Beside,
-        {}
-      );
-      panel.webview.html = getWebviewContent();
+
+      // const columnToShowIn = vscode.window.activeTextEditor
+      //   ? vscode.window.activeTextEditor.viewColumn
+      //   : undefined;
+
+      if (currentPanel) {
+        // Show the current panel in the target column with new search results
+        // currentPanel.reveal(columnToShowIn);
+        currentPanel.dispose();
+      }
+      try {
+        const response = await fetch(
+          `https://vscode-stock-image-finder-api-production.up.railway.app/photos?query=${query}`
+        );
+        const data: any = await response.json();
+        const images = data.data.results;
+        // Creates a new webview panel beside the active panel
+        currentPanel = vscode.window.createWebviewPanel(
+          "stock-image-finder",
+          `Unsplash Images for ${query}`,
+          vscode.ViewColumn.Beside,
+          {}
+        );
+        currentPanel.webview.html = getWebviewContent(query, images);
+
+        // Reset the current panel after tab close
+        currentPanel.onDidDispose(
+          () => {
+            currentPanel = undefined;
+          },
+          null,
+          context.subscriptions
+        );
+      } catch (error) {
+        vscode.window.showErrorMessage("Unable to fetch images." + error);
+      }
     }
   );
 
   context.subscriptions.push(imageSearchCommand);
 }
 
-function getWebviewContent() {
+function getWebviewContent(query: string, images: any[]) {
   return `
   <!DOCTYPE html>
 <html lang="en">
@@ -55,58 +85,35 @@ function getWebviewContent() {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Gallery</title>
     <style>
-        .images {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-}
-
-.image {
-    width: auto;
-    height: 250px;
-    background-color: pink;
-}
-
-.pagination {
-    display: flex;
-    width: auto;
-    justify-content: cener;
-}
+      .body {
+        max-width: 500px;
+      }
+      .images {
+          display: flex;
+          flex-wrap: wrap;
+          flex-direction: column;
+          gap: 12px;
+          max-height: 2500px;
+      }
+      .image {
+          flex: 1 0 auto;
+      }
+      .pagination {
+          display: flex;
+          width: auto;
+          justify-content: cener;
+      }
     </style>
 </head>
 <body>
     <div class="image-grid">
+        <p>Showing results for ${query}</p>
         <div class="images">
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
-            <div class="image"></div>
+            ${images
+              .map((image) => {
+                return `<div class="image"><img src=${image.urls.thumb} /></div>`;
+              })
+              .join("")}
         </div>
         <div class="pagination-controls">
             <button disabled>Previous</button>
