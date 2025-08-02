@@ -57,7 +57,21 @@ export function activate(context: vscode.ExtensionContext) {
           vscode.ViewColumn.Beside,
           {}
         );
-        currentPanel.webview.html = getWebviewContent(query, images);
+
+        const chunkSize = 10;
+        const imageColumns = [];
+        for (let i = 0; i < images.length; i += chunkSize) {
+          const chunk = images
+            .slice(i, i + chunkSize)
+            .map(
+              (image: any) =>
+                `<div class="image"><img src=${image.urls.thumb} /></div>`
+            )
+            .join("");
+          imageColumns.push(chunk);
+        }
+
+        currentPanel.webview.html = getWebviewContent(query, imageColumns);
 
         // Reset the current panel after tab close
         currentPanel.onDidDispose(
@@ -88,15 +102,21 @@ function getWebviewContent(query: string, images: any[]) {
       .body {
         max-width: 500px;
       }
-      .images {
-          display: flex;
-          flex-wrap: wrap;
-          flex-direction: column;
-          gap: 12px;
-          max-height: 2500px;
+      .image-grid {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
       }
-      .image {
-          flex: 1 0 auto;
+      .images {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        max-width: 600px;
+      }
+      .image-column {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
       }
       .pagination {
           display: flex;
@@ -110,8 +130,8 @@ function getWebviewContent(query: string, images: any[]) {
         <p>Showing results for ${query}</p>
         <div class="images">
             ${images
-              .map((image) => {
-                return `<div class="image"><img src=${image.urls.thumb} /></div>`;
+              .map((imageColumn) => {
+                return `<div class="image-column">${imageColumn}</div>`;
               })
               .join("")}
         </div>
