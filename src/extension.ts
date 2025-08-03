@@ -50,6 +50,7 @@ export function activate(context: vscode.ExtensionContext) {
         );
         const data: any = await response.json();
         const images = data.data.results;
+
         // Creates a new webview panel beside the active panel
         currentPanel = vscode.window.createWebviewPanel(
           "stock-image-finder",
@@ -65,7 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
             .slice(i, i + chunkSize)
             .map(
               (image: any) =>
-                `<div class="image"><img src=${image.urls.thumb} /></div>`
+                `<div class="image"><img src="${image.urls.thumb}" /><span><b>${image.user.name}</b></span></div>`
             )
             .join("");
           imageColumns.push(chunk);
@@ -118,10 +119,42 @@ function getWebviewContent(query: string, images: any[]) {
         grid-template-columns: 1fr;
         gap: 12px;
       }
+      .image {
+        position: relative;
+      }
+      .image img { 
+        width: 100%;
+        height: 100%;
+        margin-bottom: auto;
+        object-fit: cover;
+      }
+      .image:hover {
+        cursor: pointer;
+      }
+      .image > span {
+        position: absolute;
+        opacity: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        transition: opacity 0.25s ease;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: flex-end;
+        margin-bottom: auto;
+      }
+      .image span b {
+        padding-left: 4px;
+        padding-bottom: 4px;
+      }
+      .image:hover > span {
+        opacity: 1;
+      }
       .pagination {
-          display: flex;
-          width: auto;
-          justify-content: cener;
+        display: flex;
+        width: auto;
+        justify-content: center;
       }
     </style>
 </head>
