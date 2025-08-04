@@ -47,12 +47,15 @@ code {
 button {
     border: none;
     padding: var(--input-padding-vertical) var(--input-padding-horizontal);
-    width: 100%;
     text-align: center;
     outline: 1px solid transparent;
     outline-offset: 2px !important;
     color: var(--vscode-button-foreground);
     background: var(--vscode-button-background);
+}
+
+button:disabled {
+    cursor: not-allowed;
 }
 
 button:hover {
