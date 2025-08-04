@@ -9,7 +9,7 @@
             vscode.postMessage({ command: 'next' });
         });
         prev.addEventListener('click', () => {
-            vscode.postMessage({ command: 'previosu' });
+            vscode.postMessage({ command: 'previous' });
         });
         document.querySelector('.images').addEventListener('click', event => {
             const image = event.target.closest('.image');
