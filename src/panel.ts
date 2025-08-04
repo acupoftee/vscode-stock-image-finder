@@ -27,9 +27,17 @@ export class StockImageFinderPanel {
       switch (message.command) {
         case "next":
           console.log("clicked next");
+          this._panel.webview.html = this._getHtmlForWebview(
+            this._panel.webview,
+            "Loading..."
+          );
           await this._updatePage(this._query, this._currentPage + 1);
           break;
         case "previous":
+          this._panel.webview.html = this._getHtmlForWebview(
+            this._panel.webview,
+            "Loading..."
+          );
           console.log("clicked previous");
           await this._updatePage(this._query, this._currentPage - 1);
           break;
