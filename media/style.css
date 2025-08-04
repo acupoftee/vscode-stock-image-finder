@@ -67,3 +67,18 @@
     width: 250px;
     margin-bottom: 8px;
 }
+
+pre {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    padding: 1rem;
+    overflow-x: auto;
+    border-radius: 6px;
+    font-family: Consolas, Monaco, 'Courier New', monospace;
+    font-size: 14px;
+}
+
+code {
+    display: block;
+    white-space: pre-wrap;
+}

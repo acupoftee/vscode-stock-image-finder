@@ -40,6 +40,14 @@ export class StockImageFinderPanel {
           );
           await this._updatePage(this._query, this._currentPage);
           break;
+        case "viewImage":
+          const code = await this._createImageDisplay(
+            this._getImage(this._query, this._currentPage, message.data)
+          );
+          this._panel.webview.html = this._getHtmlForWebview(
+            this._panel.webview,
+            code
+          );
       }
     });
 
@@ -94,11 +102,18 @@ export class StockImageFinderPanel {
     }
   }
 
+  private _getImage(query: string, page: number, imageId: string) {
+    const result = this._cache[`${query}-${page}`].results.find(
+      (image: any) => image.id === imageId
+    );
+    return result;
+  }
+
   private async _updatePage(query: string, page: number) {
     if (this._cache[`${query}-${page}`]) {
       this._panel.webview.html = this._getHtmlForWebview(
         this._panel.webview,
-        this._cache[`${query}-${page}`]
+        this._cache[`${query}-${page}`].html
       );
       return;
     }
@@ -117,7 +132,10 @@ export class StockImageFinderPanel {
 
       this._currentPage = page;
       this._totalPages = totalPages;
-      this._cache[`${query}-${page}`] = galleryHtml;
+      this._cache[`${query}-${page}`] = {
+        results: images,
+        html: galleryHtml,
+      };
       this._panel.webview.html = this._getHtmlForWebview(
         this._panel.webview,
         galleryHtml
@@ -151,7 +169,7 @@ export class StockImageFinderPanel {
         .slice(i, i + chunkSize)
         .map(
           (image: any) =>
-            `<div class="image"><img src="${image.urls.thumb}" /><span class="image-caption"><b>${image.user.name}</b></span></div>`
+            `<div class="image" data-imageid="${image.id}"><img src="${image.urls.thumb}" /><span class="image-caption"><b>${image.user.name}</b></span></div>`
         )
         .join("");
       imageColumns.push(chunk);
@@ -173,7 +191,12 @@ export class StockImageFinderPanel {
         </div>`;
   }
 
-  private _createImageDisplay(image: any) {
+  private async _createImageDisplay(image: any) {
+    const formattedCodeBlock = `
+    &lt;img src="${image.urls.full}" alt="${image.alt_description}" /&gt;
+    &lt;!-- Attribution --&gt; 
+    &lt;p&gt;Photo by &lt;a href="${image.links.html}"&gt;${image.user.name}&lt;/a&gt; on &lt;ahref="https://www.unsplash.com"&gt;Unsplash&lt;/a&gt;&lt;/p&gt;
+    `;
     return `
     <div class="selected-image">
         <div class="header">
@@ -202,13 +225,8 @@ export class StockImageFinderPanel {
                     <button>CSS</button>
                 </div>
                 <div class="code-block">
-                    <pre>
-                    <code class="language-html">
-&lt;img src=${image.urls.full}
-  alt=${image.alt_description} /&gt;
-&lt;!-- Attribution --&gt;
-&lt;p&gt;Photo by &lt;a href=${image.links.html}&gt;${image.user.name}&lt;/a&gt;on&lt;a href="https://www.unsplash.com"&gt;Unsplash&lt;/a&gt;&lt;/p&gt;
-</code>
+                  <pre>
+                    ${formattedCodeBlock}
                   </pre>
               </div>
 <div class="code-block">
@@ -220,7 +238,7 @@ export class StockImageFinderPanel {
     `;
   }
 
-  private _getHtmlForWebview(webview: vscode.Webview, content: string) {
+  private _getHtmlForWebview(webview: vscode.Webview, content: any) {
     const scriptPathOnDisk = vscode.Uri.joinPath(
       this._extensionUri,
       "media",
@@ -266,10 +284,9 @@ export class StockImageFinderPanel {
   				<link href="${stylesResetUri}" rel="stylesheet">
                 <link href="${stylesVSCodeUri}" rel="stylesheet">
   				<link href="${stylesMainUri}" rel="stylesheet">
-
-  				<title>Stock Image Finder Results for ${this._query}</title>
+  				<title>Stock Image Finder Results</title>
   			</head>
-  			<body>
+  			<body id="content">
           ${content}
   				<script nonce="${nonce}" src="${scriptUri}"></script>
   			</body>
