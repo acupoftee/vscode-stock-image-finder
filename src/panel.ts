@@ -10,7 +10,7 @@ export class StockImageFinderPanel {
   private readonly _query: string;
   private _disposables: vscode.Disposable[] = [];
   private _currentPage: number = 1;
-  private _totalPages: number = 0;
+  private _totalPages: number | null = null;
   private _cache: any = {};
 
   private constructor(
@@ -22,24 +22,23 @@ export class StockImageFinderPanel {
     this._extensionUri = extensionUri;
     this._query = query;
 
-    // Listen for events from the client
     this._panel.webview.onDidReceiveMessage(async (message) => {
       switch (message.command) {
         case "next":
-          console.log("clicked next");
+          this._currentPage = this._currentPage + 1;
           this._panel.webview.html = this._getHtmlForWebview(
             this._panel.webview,
-            "Loading..."
+            this._createLoadingScreen(this._currentPage, this._totalPages!)
           );
-          await this._updatePage(this._query, this._currentPage + 1);
+          await this._updatePage(this._query, this._currentPage);
           break;
         case "previous":
+          this._currentPage = this._currentPage - 1;
           this._panel.webview.html = this._getHtmlForWebview(
             this._panel.webview,
-            "Loading..."
+            this._createLoadingScreen(this._currentPage, this._totalPages!)
           );
-          console.log("clicked previous");
-          await this._updatePage(this._query, this._currentPage - 1);
+          await this._updatePage(this._query, this._currentPage);
           break;
       }
     });
@@ -85,7 +84,6 @@ export class StockImageFinderPanel {
   public dispose() {
     StockImageFinderPanel.currentPanel = undefined;
 
-    // Clean up our resources
     this._panel.dispose();
 
     while (this._disposables.length) {
@@ -97,16 +95,28 @@ export class StockImageFinderPanel {
   }
 
   private async _updatePage(query: string, page: number) {
+    if (this._cache[`${query}-${page}`]) {
+      this._panel.webview.html = this._getHtmlForWebview(
+        this._panel.webview,
+        this._cache[`${query}-${page}`]
+      );
+      return;
+    }
     try {
       const response = await fetch(
         `https://vscode-stock-image-finder-api-production.up.railway.app/photos?query=${query}&page=${page}`
       );
       const data: any = await response.json();
       const images: any = data.data.results;
+      const totalPages: number = data.data.total_pages;
+      const galleryHtml: string = this._createImageGallery(
+        images,
+        page,
+        totalPages
+      );
 
-      const galleryHtml = this._createImageGallery(images);
-      this._totalPages = data.total_pages;
       this._currentPage = page;
+      this._totalPages = totalPages;
       this._cache[`${query}-${page}`] = galleryHtml;
       this._panel.webview.html = this._getHtmlForWebview(
         this._panel.webview,
@@ -117,7 +127,23 @@ export class StockImageFinderPanel {
     }
   }
 
-  private _createImageGallery(images: any) {
+  private _createLoadingScreen(currentPage: number, totalPages: number) {
+    return `
+        <div class="image-grid">
+            <p>Loading...</p>
+            <div class="pagination-controls">
+                <button id="prevBtn" disabled>Previous</button>
+                <button id="nextBtn" disabled>Next</button>
+            </div>
+            <p>Page ${currentPage} of ${totalPages}</p>
+        </div>`;
+  }
+
+  private _createImageGallery(
+    images: any,
+    currentPage: number,
+    totalPages: number
+  ) {
     const chunkSize = 10;
     const imageColumns = [];
     for (let i = 0; i < images.length; i += chunkSize) {
@@ -143,6 +169,7 @@ export class StockImageFinderPanel {
                 <button id="prevBtn">Previous</button>
                 <button id="nextBtn">Next</button>
             </div>
+            <p>Page ${currentPage} of ${totalPages}</p>
         </div>`;
   }
 
@@ -178,12 +205,12 @@ export class StockImageFinderPanel {
                     <pre>
                     <code class="language-html">
 &lt;img src=${image.urls.full}
-    alt=${image.alt_description} /&gt;
+  alt=${image.alt_description} /&gt;
 &lt;!-- Attribution --&gt;
 &lt;p&gt;Photo by &lt;a href=${image.links.html}&gt;${image.user.name}&lt;/a&gt;on&lt;a href="https://www.unsplash.com"&gt;Unsplash&lt;/a&gt;&lt;/p&gt;
 </code>
-                    </pre>
-                </div>
+                  </pre>
+              </div>
 <div class="code-block">
 </div>
             </div>
@@ -194,17 +221,11 @@ export class StockImageFinderPanel {
   }
 
   private _getHtmlForWebview(webview: vscode.Webview, content: string) {
-    // Local path to main script run in the webview
     const scriptPathOnDisk = vscode.Uri.joinPath(
       this._extensionUri,
       "media",
       "main.js"
     );
-
-    // And the uri we use to load this script in the webview
-    const scriptUri = webview.asWebviewUri(scriptPathOnDisk);
-
-    // Local path to css styles
     const styleResetPath = vscode.Uri.joinPath(
       this._extensionUri,
       "media",
@@ -221,7 +242,7 @@ export class StockImageFinderPanel {
       "style.css"
     );
 
-    // Uri to load styles into webview
+    const scriptUri = webview.asWebviewUri(scriptPathOnDisk);
     const stylesResetUri = webview.asWebviewUri(styleResetPath);
     const stylesVSCodeUri = webview.asWebviewUri(stylesPathVSCodePath);
     const stylesMainUri = webview.asWebviewUri(stylesPathMainPath);
