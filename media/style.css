@@ -70,6 +70,7 @@
 
 .image-display {
     max-width: 500px;
+    margin-top: 4px;
 }
 
 .image-display img {
@@ -77,18 +78,31 @@
     height: 100%;
     object-fit: cover;
 }
-pre {
-    background-color: #1e1e1e;
-    color: #d4d4d4;
-    padding: 1rem;
-    overflow-x: auto;
-    border-radius: 6px;
-    font-family: Consolas, Monaco, 'Courier New', monospace;
-    max-width: 500px;
-    font-size: 14px;
+
+.code-container {
+    position: relative;
+    max-width: 500px; 
+    margin-top: 2px;
 }
 
 code {
+    background-color: var(--vscode-sideBar-background);
     display: block;
-    white-space: pre-wrap;
+    white-space: pre;
+    overflow-x: scroll;
+    padding: 1.5em;
+    position: relative;
+    border-radius: 6px;
+    border: 1px solid var(--vscode-input-focusBorder);
+    margin-bottom: 12px;
 }
+
+.copy-code {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border-radius: 4px;
+}
+          
+              
+            

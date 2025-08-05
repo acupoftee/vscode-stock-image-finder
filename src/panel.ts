@@ -21,15 +21,17 @@ export class StockImageFinderPanel {
 
     this._panel.webview.onDidReceiveMessage(async (message) => {
       switch (message.command) {
-        case "next":
-        case "previous":
-          await this._controller.handlePagination(message.command);
+        case "paginate":
+          await this._controller.handlePagination(message.direction);
           break;
         case "viewImage":
           await this._controller.handleImageSelection(message.image);
           break;
         case "back":
           await this._controller.handleBack();
+          break;
+        case "copy":
+          await this._controller.handleCopy();
           break;
         case "download":
           break;
@@ -48,31 +50,32 @@ export class StockImageFinderPanel {
   }
 
   public static createOrShow(extensionUri: vscode.Uri, query: string) {
-    if (StockImageFinderPanel.currentPanel) {
-      StockImageFinderPanel.currentPanel._panel.dispose();
-    }
-
-    // Creates a new webview panel beside the active panel
-    const panel = vscode.window.createWebviewPanel(
-      "stock-image-finder",
-      `Unsplash Search Results`,
-      vscode.ViewColumn.Beside,
-      {
-        // Enable javascript in the webview
-        enableScripts: true,
-        // And restrict the webview to only loading content from our extension's `media` directory.
-        localResourceRoots: [vscode.Uri.joinPath(extensionUri, "media")],
-      }
-    );
-
-    // Because we're creating an instance where the controller is initialized,
-    // we need to invoke the state change to populate the search results
     Store.getInstance().setState({ query });
 
-    StockImageFinderPanel.currentPanel = new StockImageFinderPanel(
-      panel,
-      extensionUri
-    );
+    if (StockImageFinderPanel.currentPanel) {
+      StockImageFinderPanel.currentPanel._panel.reveal();
+      StockImageFinderPanel.currentPanel._controller
+        .handleSearch(query)
+        .catch(() => Store.getInstance().setState({ view: "error" }));
+    } else {
+      // Creates a new webview panel beside the active panel
+      const panel = vscode.window.createWebviewPanel(
+        "stock-image-finder",
+        `Unsplash Search Results`,
+        vscode.ViewColumn.Beside,
+        {
+          // Enable javascript in the webview
+          enableScripts: true,
+          // And restrict the webview to only loading content from our extension's `media` directory.
+          localResourceRoots: [vscode.Uri.joinPath(extensionUri, "media")],
+        }
+      );
+
+      StockImageFinderPanel.currentPanel = new StockImageFinderPanel(
+        panel,
+        extensionUri
+      );
+    }
   }
 
   public dispose() {

@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { searchImages } from "../api/Api";
+import { incrementDownload, searchImages } from "../api/Api";
 import { PhotoResponse } from "../api/types";
 import { Store } from "../store/Store";
 import { ErrorScreen } from "../views/ErrorView";
@@ -56,7 +56,7 @@ export class StockImageFinderController {
 
     try {
       const { images, totalPages } = await searchImages(query);
-      this.store.updateCache(query, images, totalPages);
+      this.store.updateCache(query, images, 1);
       this.store.setState({ query, totalPages, page: 1, view: "list" });
     } catch (error) {
       this.store.setState({ view: "error" });
@@ -79,11 +79,18 @@ export class StockImageFinderController {
       }
 
       const newPage = Math.min(state.totalPages, state.page + 1);
+
+      // Return cached values if they exist
+      if (state.cache[`${state.query}-${newPage}`]) {
+        this.store.setState({ page: newPage, view: "list" });
+        return;
+      }
+
       this.store.setState({ view: "loading" });
 
       try {
         const { images } = await searchImages(state.query, newPage);
-        this.store.updateCache(state.query, images, state.totalPages);
+        this.store.updateCache(state.query, images, newPage);
         this.store.setState({ page: newPage, view: "list" });
       } catch (error) {
         this.store.setState({ view: "error" });
@@ -108,6 +115,19 @@ export class StockImageFinderController {
     this.store.setState({ selectedImage: null, view: "list" });
   }
 
+  async handleCopy() {
+    const state = this.store.getState();
+    try {
+      const incremented = await incrementDownload(
+        state.selectedImage!.links.download_location
+      );
+      return incremented;
+    } catch (error) {
+      vscode.window.showErrorMessage("Unable to copy snippet." + error);
+    }
+  }
+  async handleDownload() {}
+
   /**
    * Return content based on current view in state
    */
@@ -125,7 +145,7 @@ export class StockImageFinderController {
         });
         break;
       case "image":
-        html = ImageDetail(state.selectedImage!); // Required for rendering
+        html = ImageDetail(state.selectedImage!, this.nonce); // Required for rendering
         break;
       case "loading":
         html = LoadingScreen({ page: state.page, pages: state.totalPages });
