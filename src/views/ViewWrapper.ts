@@ -26,26 +26,28 @@ export const ViewWrapper = (
   const stylesVSCodeUri = webview.asWebviewUri(stylesPathVSCodePath);
   const stylesMainUri = webview.asWebviewUri(stylesPathMainPath);
 
-  return `<!DOCTYPE html>
-  			<html lang="en">
-  			<head>
-  				<meta charset="UTF-8">
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
 
-  				<!--
-  					Use a content security policy to only allow loading images from https or from our extension directory,
-  					and only allow scripts that have a specific nonce.
-  				-->
-  				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
+        <!--
+            Use a content security policy to only allow loading images from https or from our extension directory,
+            and only allow scripts that have a specific nonce.
+        -->
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
 
-  				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  				<link href="${stylesResetUri}" rel="stylesheet">
-                <link href="${stylesVSCodeUri}" rel="stylesheet">
-  				<link href="${stylesMainUri}" rel="stylesheet">
-  				<title>Stock Image Finder Results</title>
-  			</head>
-  			<body>
-                <div id="root">${children}</div>
-  			</body>
-  			</html>`;
+        <link href="${stylesResetUri}" rel="stylesheet">
+        <link href="${stylesVSCodeUri}" rel="stylesheet">
+        <link href="${stylesMainUri}" rel="stylesheet">
+        <title>Stock Image Finder Results</title>
+    </head>
+    <body>
+        <div id="root">${children}</div>
+    </body>
+    </html>
+  `;
 };
