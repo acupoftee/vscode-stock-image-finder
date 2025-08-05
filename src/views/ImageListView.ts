@@ -25,9 +25,16 @@ type ImagesProps = {
   images: PhotoResponse[];
   page: number;
   totalPages: number;
+  nonce: string;
 };
 
-export const ImageList = ({ query, images, page, totalPages }: ImagesProps) =>
+export const ImageList = ({
+  query,
+  images,
+  page,
+  totalPages,
+  nonce,
+}: ImagesProps) =>
   `
         <div class="image-grid">
             <p>Showing results for <span id="query">${query}</span></p>
@@ -42,7 +49,7 @@ export const ImageList = ({ query, images, page, totalPages }: ImagesProps) =>
             </div>
             <p>Page ${page} of ${totalPages}</p>
         </div>
-        <script>
+        <script nonce="${nonce}">
             const vscode = acquireVsCodeApi();
             document.getElementById('nextBtn').addEventListener('click', () => {
                 vscode.postMessage({ command: 'paginate', diretion: 'next' });
