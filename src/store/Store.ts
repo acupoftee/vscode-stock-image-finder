@@ -45,9 +45,8 @@ export class Store {
     this.notify();
   }
 
-  updateCache(query: string, images: PhotoResponse[], totalPages: number) {
-    this.state.cache[`${query}-${this.state.page}`] = images; // Requests are paginated via separate URLs
-    this.state.totalPages = totalPages;
+  updateCache(query: string, images: PhotoResponse[], page: number) {
+    this.state.cache[`${query}-${page}`] = images; // Requests are paginated via separate URLs
   }
 
   // Used for invoking a functino that is depending on a state change
