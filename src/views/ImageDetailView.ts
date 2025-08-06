@@ -19,9 +19,10 @@ export const ImageDetail = (image: PhotoResponse, nonce: string) => {
             <img src=${image.urls.small} alt=${image.alt_description}/>
               <p>Photo by <a href="${image.links.html}?utm_source=vscode-stock-image-finder&utm_medium=referral">${image.user.name}</a> on <ahref="https://www.unsplash.com">Unsplash</a></p>
         </div>
-        <br></br><br></br>
+        <br></br>
         <div class="code-block">
             <h3>HTML</h3>
+            <br></br>
             <div class="code-container">
               <code id="html-text">
               ${formattedCodeBlock}
@@ -31,6 +32,7 @@ export const ImageDetail = (image: PhotoResponse, nonce: string) => {
           </div>
         <div class="code-block">
             <h3>CSS</h3>
+            <br></br>
             <div class="code-container">
               <code id="css-text">
                 ${formattedCSS}
