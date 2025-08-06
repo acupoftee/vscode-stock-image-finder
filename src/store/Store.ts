@@ -54,9 +54,8 @@ export class Store {
     this.listeners.push(listener);
   }
 
-  // Used for teardown once the panel has been disposed (i.e. dismissed)
-  unsubscribe(listener: Listener) {
-    this.listeners.filter((unsub) => unsub !== listener);
+  unsubscribe() {
+    this.listeners = [];
   }
 
   // Invokes functions subscribed to state changes in the controller

@@ -40,11 +40,7 @@ export class StockImageFinderPanel {
 
     // Listen for when the panel is disposed
     // This happens when the user closes the panel or when the panel is closed programmatically
-    this._panel.onDidDispose(
-      () => this._panel.dispose(),
-      null,
-      this._disposables
-    );
+    this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
     this._controller.render();
   }
@@ -52,21 +48,23 @@ export class StockImageFinderPanel {
   public static createOrShow(extensionUri: vscode.Uri, query: string) {
     Store.getInstance().setState({ query });
 
+    const column = vscode.window.activeTextEditor
+      ? vscode.window.activeTextEditor.viewColumn
+      : undefined;
+
     if (StockImageFinderPanel.currentPanel) {
-      StockImageFinderPanel.currentPanel._panel.reveal();
+      StockImageFinderPanel.currentPanel._panel.reveal(column);
       StockImageFinderPanel.currentPanel._controller
         .handleSearch(query)
         .catch(() => Store.getInstance().setState({ view: "error" }));
+      return;
     } else {
-      // Creates a new webview panel beside the active panel
       const panel = vscode.window.createWebviewPanel(
         "stock-image-finder",
         `Unsplash Search Results`,
         vscode.ViewColumn.Beside,
         {
-          // Enable javascript in the webview
           enableScripts: true,
-          // And restrict the webview to only loading content from our extension's `media` directory.
           localResourceRoots: [vscode.Uri.joinPath(extensionUri, "media")],
         }
       );
@@ -82,6 +80,8 @@ export class StockImageFinderPanel {
     StockImageFinderPanel.currentPanel = undefined;
 
     this._panel.dispose();
+
+    Store.getInstance().unsubscribe();
 
     while (this._disposables.length) {
       const x = this._disposables.pop();
