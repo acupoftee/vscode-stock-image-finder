@@ -4,9 +4,13 @@ import { beforeEach, afterEach, describe, it } from "mocha";
 import sinon from "sinon";
 import { StockImageFinderController } from "../controller/Controller";
 import { StockImageFinderPanel } from "../panel";
+import { Store } from "../store/Store";
+import { mockResponse } from "./mocks";
+import * as api from "../api/Api";
 
 suite("Panel Test Suite", () => {
   let controller: sinon.SinonStubbedInstance<StockImageFinderController>;
+  let handleSearch: sinon.SinonStub;
   let mockWebviewPanel: vscode.WebviewPanel;
   let createWebviewPanelStub: sinon.SinonStub;
 
@@ -36,6 +40,7 @@ suite("Panel Test Suite", () => {
       .stub(vscode.window, "createWebviewPanel")
       .returns(mockWebviewPanel);
     controller = sinon.createStubInstance(StockImageFinderController);
+    handleSearch = sinon.stub(api, "searchImages").resolves(mockResponse);
   });
 
   afterEach(() => {
@@ -50,6 +55,20 @@ suite("Panel Test Suite", () => {
 
       assert.ok(createWebviewPanelStub.calledOnce);
       assert.ok(StockImageFinderPanel.currentPanel);
+    });
+
+    it("should reveal an existing webview panel", () => {
+      const mockUri = vscode.Uri.parse("file://fake");
+
+      StockImageFinderPanel.createOrShow(mockUri, "cats");
+      assert.ok(handleSearch.calledWith("cats"));
+      assert.ok(StockImageFinderPanel.currentPanel);
+
+      // Confirm new webview is not created and instead invokes a search query for the existing panel
+      StockImageFinderPanel.createOrShow(mockUri, "dogs");
+      assert.strictEqual(Store.getInstance().getState().query, "dogs");
+      assert.ok(createWebviewPanelStub.notCalled);
+      assert.ok(handleSearch.calledWith("dogs"));
     });
   });
 });
