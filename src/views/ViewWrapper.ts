@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { Store } from "../store/Store";
 
 export const ViewWrapper = (
   webview: vscode.Webview,
@@ -36,14 +37,18 @@ export const ViewWrapper = (
             Use a content security policy to only allow loading images from https or from our extension directory,
             and only allow scripts that have a specific nonce.
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${
+          webview.cspSource
+        }; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <link href="${stylesResetUri}" rel="stylesheet">
         <link href="${stylesVSCodeUri}" rel="stylesheet">
         <link href="${stylesMainUri}" rel="stylesheet">
-        <title>Stock Image Finder Results</title>
+        <title>Stock Image Finder Results for ${
+          Store.getInstance().getState().query
+        }</title>
     </head>
     <body>
         <div id="root">${children}</div>

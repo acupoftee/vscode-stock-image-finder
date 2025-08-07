@@ -40,7 +40,7 @@ export class StockImageFinderPanel {
 
     // Listen for when the panel is disposed
     // This happens when the user closes the panel or when the panel is closed programmatically
-    this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+    this._panel.onDidDispose(() => this._dispose(), null, this._disposables);
 
     this._controller.render();
   }
@@ -76,7 +76,7 @@ export class StockImageFinderPanel {
     }
   }
 
-  public dispose() {
+  private _dispose() {
     StockImageFinderPanel.currentPanel = undefined;
 
     this._panel.dispose();
