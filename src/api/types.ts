@@ -32,8 +32,8 @@ interface UserLinks {
   photos: string;
   likes: string;
   portfolio: string;
-  following: string;
-  followers: string;
+  following?: string;
+  followers?: string;
 }
 
 interface ProfileImage {
