@@ -116,15 +116,12 @@ export class StockImageFinderController {
     this.store.setState({ selectedImage: null, view: "list" });
   }
 
-  async handleCopy() {
+  async downloadCountIncrement() {
     const state = this.store.getState();
     try {
-      const incremented = await incrementDownload(
-        state.selectedImage!.links.download_location
-      );
-      return incremented;
+      await incrementDownload(state.selectedImage!.links.download_location);
     } catch (error) {
-      vscode.window.showErrorMessage("Unable to copy snippet." + error);
+      vscode.window.showErrorMessage("Image access error." + error);
     }
   }
   async handleRetry() {
@@ -135,6 +132,7 @@ export class StockImageFinderController {
   async handleDownload(url: string, filename: string) {
     vscode.window.showInformationMessage("Starting image downlaod.");
     await downloadImage(url, filename);
+    await this.downloadCountIncrement(); // used to increment download count
   }
 
   /**

@@ -31,7 +31,7 @@ export class StockImageFinderPanel {
           await this._controller.handleBack();
           break;
         case "copy":
-          await this._controller.handleCopy();
+          await this._controller.downloadCountIncrement();
           break;
         case "retry":
           await this._controller.handleRetry();

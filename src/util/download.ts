@@ -35,7 +35,7 @@ export const downloadImage = async (url: string, filename: string) => {
       },
     });
     if (!response.body) {
-      vscode.window.showErrorMessage("Unable to download image.");
+      vscode.window.showErrorMessage("Unable to download image: no content.");
       return;
     }
 
@@ -56,7 +56,9 @@ export const downloadImage = async (url: string, filename: string) => {
       `Successfully downloaded ${filepath} in workspace.`
     );
   } catch (error) {
-    vscode.window.showErrorMessage("Unable to download image.");
+    vscode.window.showErrorMessage(
+      "Unable to download image. Please try again."
+    );
     console.error(error);
   }
 };
