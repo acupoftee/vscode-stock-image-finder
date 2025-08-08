@@ -7,6 +7,7 @@ import { ImageDetail } from "../views/ImageDetailView";
 import { ImageList } from "../views/ImageListView";
 import { LoadingScreen } from "../views/LoadingScreenView";
 import { ViewWrapper } from "../views/ViewWrapper";
+import { downloadImage } from "../util/download";
 
 const getNonce = (): string => {
   let text = "";
@@ -51,11 +52,11 @@ export class StockImageFinderController {
    * Searches the Unsplash API for the query provided in the window input
    * @param query the search string provided upon activation
    */
-  async handleSearch(query: string) {
+  async handleSearch(query: string, page: number = 1) {
     this.store.setState({ view: "loading" });
 
     try {
-      const { images, totalPages } = await searchImages(query);
+      const { images, totalPages } = await searchImages(query, page);
       this.store.updateCache(query, images, 1);
       this.store.setState({ query, totalPages, page: 1, view: "list" });
     } catch (error) {
@@ -126,7 +127,15 @@ export class StockImageFinderController {
       vscode.window.showErrorMessage("Unable to copy snippet." + error);
     }
   }
-  async handleDownload() {}
+  async handleRetry() {
+    const state = this.store.getState();
+    await this.handleSearch(state.query, state.page);
+  }
+
+  async handleDownload(url: string, filename: string) {
+    vscode.window.showInformationMessage("Starting image downlaod.");
+    await downloadImage(url, filename);
+  }
 
   /**
    * Return content based on current view in state
@@ -151,7 +160,7 @@ export class StockImageFinderController {
         html = LoadingScreen({ page: state.page, pages: state.totalPages });
         break;
       case "error":
-        html = ErrorScreen();
+        html = ErrorScreen(this.nonce);
         break;
     }
 

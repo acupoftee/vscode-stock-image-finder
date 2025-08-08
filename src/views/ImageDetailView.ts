@@ -51,7 +51,7 @@ export const ImageDetail = (image: PhotoResponse, nonce: string) => {
           vscode.postMessage({ command: 'back' });
         });
         document.getElementById('download').addEventListener('click', () => {
-          vscode.postMessage({ command: 'download' });
+          vscode.postMessage({ command: 'download', url: '${image.links.download}', filename: '${image.slug}.jpg' });
         });
         document.getElementById('copy-html').addEventListener('click', (e) => {
           event.target.style.display = "none";

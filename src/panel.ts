@@ -33,7 +33,10 @@ export class StockImageFinderPanel {
         case "copy":
           await this._controller.handleCopy();
           break;
+        case "retry":
+          await this._controller.handleRetry();
         case "download":
+          await this._controller.handleDownload(message.url, message.filename);
           break;
       }
     });
