@@ -1,7 +1,5 @@
 import { PhotoResponse } from "./types";
-// const URL = "https://vscode-stock-image-finder-api-production.up.railway.app";
-
-const URL = "http://localhost:3000";
+const URL = "https://vscode-stock-image-finder-api-production.up.railway.app";
 /**
  * Searches for Unsplash images based on a search query, and the current page. The endpoint returns 30 images at a time.
  * @param query search query
