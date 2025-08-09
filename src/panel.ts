@@ -35,6 +35,7 @@ export class StockImageFinderPanel {
           break;
         case "retry":
           await this._controller.handleRetry();
+          break;
         case "download":
           await this._controller.handleDownload(message.url, message.filename);
           break;
