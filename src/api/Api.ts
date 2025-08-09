@@ -1,5 +1,7 @@
 import { PhotoResponse } from "./types";
-const URL = "https://vscode-stock-image-finder-api-production.up.railway.app";
+// const URL = "https://vscode-stock-image-finder-api-production.up.railway.app";
+
+const URL = "http://localhost:3000";
 /**
  * Searches for Unsplash images based on a search query, and the current page. The endpoint returns 30 images at a time.
  * @param query search query
@@ -24,13 +26,15 @@ export const searchImages = async (
 /**
  * Increments the download counter in the Unsplash API
  * @param url the download location url
- * @returns a Boolean indicating if the download was incremented upon copy
  */
-export const incrementDownload = async (url: string): Promise<boolean> => {
-  const response = await fetch(`${URL}/download`, {
+export const incrementDownload = async (url: string): Promise<void> => {
+  await fetch(`${URL}/download`, {
     method: "POST",
-    body: JSON.stringify({ downloadLocation: url }),
+    mode: "cors",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({ url }),
   });
-
-  return response.status < 300;
 };
