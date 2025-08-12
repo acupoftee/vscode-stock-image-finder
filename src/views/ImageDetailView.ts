@@ -17,7 +17,7 @@ export const ImageDetail = (image: PhotoResponse, nonce: string) => {
     <div class="selected-image">
         <div class="image-display">
             <img src=${image.urls.small} alt=${image.alt_description}/>
-              <p>Photo by <a href="${image.links.html}?utm_source=vscode-stock-image-finder&utm_medium=referral">${image.user.name}</a> on <ahref="https://www.unsplash.com">Unsplash</a></p>
+              <p>Photo by <a href="${image.links.html}?utm_source=vscode-stock-image-finder&utm_medium=referral">${image.user.name}</a> on <a href="https://www.unsplash.com">Unsplash</a></p>
         </div>
         <br></br>
         <div class="code-block">

@@ -61,7 +61,7 @@ export class StockImageFinderController {
       this.store.setState({ query, totalPages, page: 1, view: "list" });
     } catch (error) {
       this.store.setState({ view: "error" });
-      vscode.window.showErrorMessage("Unable to fetch images." + error);
+      vscode.window.showErrorMessage("Unable to fetch images.");
     }
   }
 
@@ -121,7 +121,7 @@ export class StockImageFinderController {
     try {
       await incrementDownload(state.selectedImage!.links.download_location);
     } catch (error) {
-      vscode.window.showErrorMessage("Image access error." + error);
+      vscode.window.showErrorMessage("Image access error.");
     }
   }
   async handleRetry() {
