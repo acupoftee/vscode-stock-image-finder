@@ -2,6 +2,7 @@
   "name": "stock-image-finder",
   "displayName": "Stock Image Finder",
   "description": "",
+  "icon": "media/logo.png",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.102.0"
