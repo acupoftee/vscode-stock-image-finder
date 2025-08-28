@@ -8,13 +8,13 @@ The features can be accessed via the Command Palette using the command `Search U
 
 #### Image Search
 
-![feature X](images/stock-image-finder-demo.gif)
+![feature X](https://github.com/acupoftee/vscode-stock-image-finder/blob/main/images/stock-image-finder-demo.gif?raw=true)
 
 Find images with ease without leaving the editor! Stock Image Finder shows results from Unsplash.
 
 #### Image Usage
 
-![feature X](images/selection-demo.gif)
+![feature X](https://github.com/acupoftee/vscode-stock-image-finder/blob/main/images/selection-demo.gif?raw=true)
 
 Integrate pre-generated HTML tags and CSS styles with your image with ease. You can also download the image to access right in your workspace.
 
@@ -35,3 +35,5 @@ Feel free to report any issues you find [here](https://github.com/acupoftee/vsco
 Initial release including image search, pagination, search caching, URL copy and pasting
 
 **Enjoy!**
+
+> NOTE: No generative AI tools were used in the making of this extension

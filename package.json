@@ -7,9 +7,13 @@
   "engines": {
     "vscode": "^1.102.0"
   },
+  "repository": {
+    "url": "https://github.com/acupoftee/vscode-stock-image-finder.git"
+  },
   "categories": [
     "Other"
   ],
+  "publisher": "acupoftee",
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
