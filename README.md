@@ -1,4 +1,4 @@
-# stock-image-finder README
+# Stock Image Finder
 
 Search and use Unsplash stock images easily for your websites or applications right here in VSCode!
 
